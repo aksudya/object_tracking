@@ -8,89 +8,59 @@ meanshift::meanshift()
 void meanshift::Init(Mat img)
 {
 	src_1 = img.clone();
+	src1_rect = src_1(rect_1);
+	
 }
 
 void meanshift::LoadImage(Mat img)
 {
 	src_2 = img.clone();
+	src2_rect = src_2(rect_1);
+	Mat E(src2_rect.rows, src2_rect.cols, CV_32F);
+	Epanechnikov_kernal = E.clone();
+	CaculateKernal();
 }
 
 void meanshift::Caculate_Back_Projection()
 {
-	int histSize[] = { 256 };
-	float midRanges[] = { 0, 256 };
-	const float* ranges[] = { midRanges };
-	Mat img = src_1(rect_1);
-	calcHist(&img, 1, 0, Mat(), dstHist, 1, histSize, ranges, true, false);
-	Mat img2 = src_2(rect_1);
-	//Back_Projection2 = img2.clone();
-	//Back_Projection1 = img.clone();
-
-	//Mat Back2(rect_1.height, rect_1.width, CV_32F);
-	Mat Back1(rect_1.height, rect_1.width, CV_32F);
-
-	Back_Projection2 = Back1.clone();
-	Back_Projection1 = Back1.clone();
-
-	maxHist = 0;
-	for (int i = 0; i < 256; ++i)
-	{
-		if(dstHist.at<float>(i)>maxHist)
-		{
-			maxHist = dstHist.at<float>(i);
-		}
-	}
-	int centerx = rect_1.height / 2;
-	int centery = rect_1.width / 2;
-	//Back_Projection = src_2.clone();
-	for (int i = 0; i < Back_Projection2.rows; ++i)
-	{
-		for (int j = 0; j < Back_Projection2.cols; ++j)
-		{
-			//img2.at<uchar>(i,j)
-			float dis = ((i - centerx) * (i - centerx) + (j - centery) * (j - centery))/ (0.25 * (rect_1.height * rect_1.height + rect_1.width * rect_1.width));
-			float weight = 1 - dis+FLT_MIN;
-
-			Back_Projection2.at<float>(i, j) = weight*dstHist.at<float>(img.at<uchar>(i, j));
-			Back_Projection1.at<float>(i, j) = weight * dstHist.at<float>(img2.at<uchar>(i, j));
-			
-			//Back_Projection2.at<uchar>(i, j) = sqrt((float)Back_Projection1.at<uchar>(i, j) / (float)Back_Projection2.at<uchar>(i, j));
-		}
-	}
-	//cv::normalize(Back_Projection2, Back_Projection2, 0, 255, cv::NORM_MINMAX);
-	//cv::normalize(Back_Projection1, Back_Projection1, 0, 255, cv::NORM_MINMAX);
+	
 }
 
 void meanshift::Caculate_rect2()
 {
-	dx = 0;
-	dy = 0;
-	int centerx = rect_1.height / 2;
-	int centery = rect_1.width / 2;
-	Mat kk(Back_Projection2.rows, Back_Projection2.cols, CV_32F);
-	double tweight = 0;
-	for (int i = 0; i < Back_Projection2.rows; ++i)
+	
+}
+
+void meanshift::Cacu_Hist()
+{
+
+}
+
+void meanshift::CaculateKernal()
+{
+	int h = Epanechnikov_kernal.rows;
+	int w = Epanechnikov_kernal.cols;
+
+	float epanechnikov_cd = 0.1 * PI * h * w;
+	float kernel_sum = 0.0;
+	for (int i = 0; i < h; i++)
 	{
-		for (int j = 0; j < Back_Projection2.cols; ++j)
+		for (int j = 0; j < w; j++)
 		{
-			//float dis = ((i - centerx) * (i - centerx)+ (j - centery) * (j - centery));
-			float dis = ((i - centerx) * (i - centerx) + (j - centery) * (j - centery)) / (0.25 * (rect_1.height * rect_1.height + rect_1.width * rect_1.width));
-
-			float p = sqrt((float)Back_Projection1.at<float>(i, j)/ Back_Projection2.at<float>(i, j));
-			
-
-			dx += 2*sqrt(dis)*(float)(j - centery) * p;
-			dy += 2 * sqrt(dis) * (float)(i - centerx) * p;
-			tweight += 2 * sqrt(dis);
-			kk.at<float>(i, j) = dy;
+			float x = static_cast<float>(i - h / 2);
+			float  y = static_cast<float> (j - w / 2);
+			float norm_x = x * x / (h * h / 4) + y * y / (w * w / 4);
+			float result = norm_x < 1 ? (epanechnikov_cd * (1.0 - norm_x)) : 0;
+			Epanechnikov_kernal.at<float>(i, j) = result;
+			kernel_sum += result;
 		}
 	}
-
-	dx /= tweight;
-	dy /= tweight;
-
-	//rect_2 = rect_1;
-	rect_1.x += dx;
-	rect_1.y += dy;
-
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = 0; j < w; j++)
+		{		
+			Epanechnikov_kernal.at<float>(i, j) /= kernel_sum;
+		}
+	}
+	//return kernel_sum;
 }
