@@ -79,8 +79,11 @@ void meanshift::Caculate_rect2()
 			float p = sqrt((float)Back_Projection1.at<float>(i, j)/ Back_Projection2.at<float>(i, j));
 			
 
-			dx += 2*sqrt(dis)*(float)(j - centery) * p;
+			dx += 2 * sqrt(dis) * (float)(j - centery) * p;
 			dy += 2 * sqrt(dis) * (float)(i - centerx) * p;
+
+
+
 			tweight += 2 * sqrt(dis);
 			kk.at<float>(i, j) = dy;
 		}
