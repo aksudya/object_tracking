@@ -31,10 +31,14 @@ int main()
 		//m.Caculate_Back_Projection();
 		else
 		{
-			m.LoadImage(gray);
-			m.Caculate_Back_Projection();
-			m.Caculate_rect2();
-			m.src_2 = m.src_1.clone();
+			for (int i = 0; i < 5; ++i)
+			{
+				m.LoadImage(gray);
+				m.Caculate_Back_Projection();
+				m.Caculate_rect2();
+				m.src_2 = m.src_1.clone();
+			}
+
 		}
 
 		cv::rectangle(src, m.rect_1, cv::Scalar(255, 0, 0), 2, 8, 0);  // 画矩形框
