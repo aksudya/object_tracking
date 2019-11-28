@@ -4,8 +4,7 @@
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
-#define NUMBINS 10
-#define COLORWITH 180
+#define NUMBINS 16
 #define PI acos(-1)
 
 using namespace cv;
@@ -30,8 +29,7 @@ public:
 
 	Mat Epanechnikov_kernal;
 
-	float hist1[NUMBINS];
-	float hist2[NUMBINS];
+	Mat dstHist;
 
 	float dx;
 	float dy;

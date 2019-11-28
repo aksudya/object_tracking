@@ -11,45 +11,32 @@ int main()
 	Mat gray;
 
 	meanshift m;
-
-
-	for (int i = 1; i <= 725; ++i)
+	for (int i = 1; i <= 450; ++i)
 	{
 		std::ostringstream os;
 		os << setw(4) << setfill('0') << i;
-		string path = "./Basketball/" + os.str() + ".jpg";
+		string path = "./BF/" + os.str() + ".jpg";
 		src = imread(path);
-
-		std::vector<Mat> channels;
-
-		//cvtColor(src, gray, COLOR_BGR2GRAY);
-		cvtColor(src, gray, COLOR_BGR2HSV);
-
-		split(gray, channels);
-
- 		if (i == 1)
+		cvtColor(src, gray, COLOR_BGR2GRAY);
+		if (i == 1)
 		{
-			//246	226	94	114		BF
-			//76, 79, 64, 52		car2
-			//196,51,139,194		trans
-			//58,100,28,23			panda
-			//227	207	122	99		BC2	
-			 //198,214,34,81
-			m.rect_1.x = 198;
-			m.rect_1.y = 214;
-			m.rect_1.width = 34;
-			m.rect_1.height = 81;
-			m.Init(channels[0]);
+			//246	226	94	114
+			//76, 79, 64, 52
+			m.rect_1.x = 246;
+			m.rect_1.y = 226;
+			m.rect_1.width = 94;
+			m.rect_1.height = 114;
+			m.Init(gray);
 		}
+		//m.Caculate_Back_Projection();
 		else
 		{
-			for (int i = 0; i < 10; ++i)
+			for (int i = 0; i < 5; ++i)
 			{
-				m.LoadImage(channels[0]);
-				m.Cacu_Hist();
+				m.LoadImage(gray);
 				m.Caculate_Back_Projection();
 				m.Caculate_rect2();
-				m.src_1 = m.src_2.clone();
+				m.src_2 = m.src_1.clone();
 			}
 
 		}
