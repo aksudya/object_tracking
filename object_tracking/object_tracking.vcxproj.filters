@@ -21,9 +21,15 @@
     <ClCompile Include="meanshift.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="PF.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="meanshift.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PF.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

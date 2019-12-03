@@ -4,8 +4,8 @@
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
-#define NUMBINS 10
-#define COLORWITH 180
+#define NUMBINS 16
+#define COLORWITH 256
 #define PI acos(-1)
 
 using namespace cv;
