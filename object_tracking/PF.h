@@ -12,6 +12,7 @@
 #define N_PARTICLES 100
 #define POS_VAR		20
 #define SCALE_VAR   30
+#define BETA		0.8
 
 using namespace cv;
 using namespace std;
@@ -44,6 +45,9 @@ public:
 	Mat src2;
 
 	Rect rect_1;
+	Rect pre_rect;
+
+	Vec2f predict;
 
 	Mat src1_rect;
 	Mat src2_rect;
@@ -58,5 +62,6 @@ public:
 	void LoadImage(Mat img);
 
 	void TraslateParticls();
+	void Updatepredict();
 };
 
