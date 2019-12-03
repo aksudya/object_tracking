@@ -13,6 +13,11 @@ Particle::Particle()
 	hist.setTo(1e-10);
 }
 
+PF::PF()
+{
+	rnd_e.seed(0);
+}
+
 void PF::Init(Mat img)
 {
 	src1 = img.clone();
@@ -47,6 +52,10 @@ void PF::TraslateParticls()
 		p.rect.x += rand_pnd(rnd_e);
 		p.rect.y += rand_pnd(rnd_e);
 
+		float scale_h = rand_snd(rnd_e);
+		float scale_w = rand_snd(rnd_e);
 
+		p.rect.height = scale_h* p.rect.height;
+		p.rect.width = scale_w* p.rect.width;
 	}	
 }

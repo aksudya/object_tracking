@@ -52,6 +52,8 @@ public:
 
 	default_random_engine rnd_e;
 
+	PF();
+
 	void Init(Mat img);
 	void LoadImage(Mat img);
 
