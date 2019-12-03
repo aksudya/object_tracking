@@ -3,12 +3,15 @@
 #include "opencv2/opencv.hpp"  
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
+#include <random>
 
 #define NUMBINS 16
 #define COLORWITH 256
 #define PI acos(-1)
 
 #define N_PARTICLES 100
+#define POS_VAR		20
+#define SCALE_VAR   30
 
 using namespace cv;
 using namespace std;
@@ -16,15 +19,18 @@ using namespace std;
 class Particle
 {
 public:
-	float x;
-	float y;
+
+	Rect rect;
+
 	float vx;
 	float vy;
-	float hx;
-	float hy;
-	float a;
+	//float scale;
 
 	float weight;
+
+	float sum_weight;
+
+	Mat img;
 
 	Mat hist;
 
@@ -44,8 +50,11 @@ public:
 
 	vector<Particle> particles;
 
+	default_random_engine rnd_e;
+
 	void Init(Mat img);
 	void LoadImage(Mat img);
 
+	void TraslateParticls();
 };
 
