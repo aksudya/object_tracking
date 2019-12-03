@@ -21,7 +21,7 @@ void meanshift::LoadImage(Mat img)
 	CaculateKernal();
 }
 
-void meanshift::Caculate_Back_Projection()
+void meanshift::Caculate_Back_Projection()		//权重（反向投影）
 {
 	cv::Mat weight(src1_rect.rows, src1_rect.cols, CV_32F, cv::Scalar(1.0000));
 	Back_Projection1 = weight.clone();
@@ -51,18 +51,18 @@ void meanshift::Caculate_rect2()
 	{
 		for (int j = 0; j < src1_rect.cols; j++)
 		{
-			float norm_i = static_cast<float>(i - centrei) / centrei;
-			float norm_j = static_cast<float>(j - centrej) / centrej;
+			float norm_i = (float)(i - centrei) / (float)centrei;
+			float norm_j = (float)(j - centrej) / (float)centrej;
 			float mult = (norm_i*norm_i + norm_j*norm_j) > 1.0 ? 0.0 : 1.0;
-			//if(pow(norm_i,2)+pow(norm_j,2)>1)std::cout<<mult<<std::endl;
-			delta_x += static_cast<float>(norm_j * Back_Projection1.at<float>(i, j) * mult);
-			delta_y += static_cast<float>(norm_i * Back_Projection1.at<float>(i, j) * mult);
-			sum_wij += static_cast<float>(Back_Projection1.at<float>(i, j) * mult);
+			
+			delta_x += (float)norm_j * Back_Projection1.at<float>(i, j) * mult;
+			delta_y += (float)norm_i * Back_Projection1.at<float>(i, j) * mult;
+			sum_wij += (float)Back_Projection1.at<float>(i, j) * mult;
 		}
 	}
 
-	rect_1.x += static_cast<int>((delta_x / sum_wij) * centrej);
-	rect_1.y += static_cast<int>((delta_y / sum_wij) * centrei);
+	rect_1.x += (delta_x / sum_wij) * centrej;
+	rect_1.y += (delta_y / sum_wij) * centrei;
 
 }
 
@@ -87,7 +87,7 @@ void meanshift::Cacu_Hist()
 	}
 }
 
-void meanshift::CaculateKernal()
+void meanshift::CaculateKernal()		//核函数
 {
 	int h = Epanechnikov_kernal.rows;
 	int w = Epanechnikov_kernal.cols;
@@ -98,9 +98,9 @@ void meanshift::CaculateKernal()
 	{
 		for (int j = 0; j < w; j++)
 		{
-			float x = static_cast<float>(i - h / 2);
-			float  y = static_cast<float> (j - w / 2);
-			float norm_x = x * x / (h * h / 4) + y * y / (w * w / 4);
+			float x = i - h / 2.0;
+			float  y =  j - w / 2.0;
+			float norm_x = x * x / (h * h / 4.0) + y * y / (w * w / 4.0);
 			float result = norm_x < 1 ? (epanechnikov_cd * (1.0 - norm_x)) : 0;
 			Epanechnikov_kernal.at<float>(i, j) = result;
 			kernel_sum += result;

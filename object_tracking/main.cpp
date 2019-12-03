@@ -18,13 +18,13 @@ int main()
 	{
 		std::ostringstream os;
 		os << setw(4) << setfill('0') << i;
-		string path = "./data/Bird1/img/" + os.str() + ".jpg";
+		string path = "C:/Users/46749/Desktop/dataset/BF/" + os.str() + ".jpg";
 		src = imread(path);
 
 		std::vector<Mat> channels;
 
-		cvtColor(src, gray, COLOR_BGR2GRAY);
-		//cvtColor(src, gray, COLOR_BGR2HSV);
+		//cvtColor(src, gray, COLOR_BGR2GRAY);
+		cvtColor(src, gray, COLOR_BGR2HSV);
 
 		split(gray, channels);
 
@@ -37,10 +37,10 @@ int main()
 			//227	207	122	99		BC2	
 			 //198,214,34,81
 			//450, 91, 31, 37
-			m.rect_1.x = 450;
-			m.rect_1.y = 91;
-			m.rect_1.width = 31;
-			m.rect_1.height = 37;
+			m.rect_1.x = 246;
+			m.rect_1.y = 226;
+			m.rect_1.width = 94;
+			m.rect_1.height = 114;
 			m.Init(channels[0]);
 		}
 		else
