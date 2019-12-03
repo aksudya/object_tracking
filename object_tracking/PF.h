@@ -8,7 +8,10 @@
 #define COLORWITH 256
 #define PI acos(-1)
 
+#define N_PARTICLES 100
+
 using namespace cv;
+using namespace std;
 
 class Particle
 {
@@ -20,9 +23,10 @@ public:
 	float hx;
 	float hy;
 	float a;
+
 	float weight;
 
-	float hist[NUMBINS];
+	Mat hist;
 
 	Particle();
 };
@@ -37,6 +41,11 @@ public:
 
 	Mat src1_rect;
 	Mat src2_rect;
+
+	vector<Particle> particles;
+
+	void Init(Mat img);
+	void LoadImage(Mat img);
 
 };
 
