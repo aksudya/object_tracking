@@ -12,13 +12,13 @@ int main()
 	Mat gray;
 
 	meanshift m;
+	PF p;
 
-
-	for (int i = 1; i <= 408; ++i)
+	for (int i = 1; i <= 490; ++i)
 	{
 		std::ostringstream os;
 		os << setw(4) << setfill('0') << i;
-		string path = "C:/Users/46749/Desktop/dataset/BF/" + os.str() + ".jpg";
+		string path = "C:/Users/46749/Desktop/data/BlurFace/img/" + os.str() + ".jpg";
 		src = imread(path);
 
 		std::vector<Mat> channels;
@@ -37,6 +37,14 @@ int main()
 			//227	207	122	99		BC2	
 			 //198,214,34,81
 			//450, 91, 31, 37
+
+			p.rect_1.x = 246;
+			p.rect_1.y = 226;
+			p.rect_1.width = 94;
+			p.rect_1.height = 114;
+			p.Init(gray);
+
+
 			m.rect_1.x = 246;
 			m.rect_1.y = 226;
 			m.rect_1.width = 94;
@@ -45,21 +53,29 @@ int main()
 		}
 		else
 		{
-			for (int i = 0; i < 50; ++i)
+			/*for (int i = 0; i < 50; ++i)
 			{
 				m.LoadImage(channels[0]);
 				m.Cacu_Hist();
 				m.Caculate_Back_Projection();
 				m.Caculate_rect2();
 				m.src_1 = m.src_2.clone();
-			}
+			}*/
+
+			p.LoadImage(gray);
 
 		}
 
-		cv::rectangle(src, m.rect_1, cv::Scalar(255, 0, 0), 2, 8, 0);  // 画矩形框
+		Mat src11 = src.clone();
+		for (auto pp:p.particles)
+		{
+			cv::rectangle(src, pp.rect, cv::Scalar(0, 255, 0), 2, 8, 0);  // 画矩形框
+		}
+
+		cv::rectangle(src, p.rect_1, cv::Scalar(255, 0, 0), 2, 8, 0);  // 画矩形框
 		
 		imshow("a", src);
-		imshow("b", src(m.rect_1));
+		imshow("b", src11(p.rect_1));
 		waitKey(0);
 	}
 }

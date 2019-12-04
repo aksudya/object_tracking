@@ -9,7 +9,7 @@ Particle::Particle()
 	weight = 0;
 	sum_weight = 0;
 
-	hist.create(3, NUMBINS, CV_32F);
+	hist.create(NUMBINS, 3, CV_32F);
 	hist.setTo(1e-10);
 }
 
@@ -44,44 +44,94 @@ void PF::LoadImage(Mat img)
 	src2_rect = src2(rect_1);
 	Updatepredict();
 	TraslateParticls();
-	Updateweight();
 
+	//for (auto pp : particles)
+	//{
+	//	cv::rectangle(src1, pp.rect, cv::Scalar(0, 255, 0), 2, 8, 0);  // »­¾ØÐÎ¿ò
+	//}
+
+	Updateweight();
+	UpdateRect();
 
 
 	UpdateHist();
+	pre_rect = rect_1;
+	src1 = src2.clone();
+	src1_rect = src2_rect;
 	
 }
 
 void PF::TraslateParticls()
 {
-	for (auto p : particles)
+	for (int i = 0; i < particles.size(); i++)
 	{
-		p.rect.x += predict[0];
-		p.rect.y += predict[1];
+		particles[i].rect.x += predict[0];
+		particles[i].rect.y += predict[1];
 		//p.rect.height *= p.scale;
 		//p.rect.width *= p.scale;
 
 		normal_distribution<float> rand_pnd(0, POS_VAR);
 		normal_distribution<float> rand_snd(1, SCALE_VAR);
 
-		p.rect.x += rand_pnd(rnd_e);
-		p.rect.y += rand_pnd(rnd_e);
+		particles[i].rect.x += rand_pnd(rnd_e);
+		particles[i].rect.y += rand_pnd(rnd_e);
 
-		float scale_h = rand_snd(rnd_e);
-		float scale_w = rand_snd(rnd_e);
+		//float scale_h = rand_snd(rnd_e);
+		//float scale_w = rand_snd(rnd_e);
 
-		p.rect.height = scale_h* p.rect.height;
-		p.rect.width = scale_w* p.rect.width;
+		float scale_h = 1;
+		float scale_w = 1;
 
-		p.img = src2(p.rect);
-		p.hist = CaculateHist(p.img);
+		float hh = (scale_h * particles[i].rect.height - particles[i].rect.height)/2;
+		float ww = (scale_w * particles[i].rect.width - particles[i].rect.width) / 2;
+
+		particles[i].rect.x -= ww;
+		particles[i].rect.y -= hh;
+
+		particles[i].rect.height = scale_h* particles[i].rect.height;
+		particles[i].rect.width = scale_w* particles[i].rect.width;
+
+
+
+		if(particles[i].rect.height<1)
+		{
+			particles[i].rect.height = 1;
+		}
+		if (particles[i].rect.width < 1)
+		{
+			particles[i].rect.width = 1;
+		}
+
+
+
+
+		if (particles[i].rect.x <= 0)
+		{
+			particles[i].rect.x = 1;
+		}
+		if (particles[i].rect.y <= 0)
+		{
+			particles[i].rect.y = 1;
+		}
+
+		if (particles[i].rect.x >= src1.cols -1)
+		{
+			particles[i].rect.x = src1.cols -1;
+		}
+		if (particles[i].rect.y >= src1.rows-1)
+		{
+			particles[i].rect.y = src1.rows -1;
+		}
+
+		particles[i].img = src2(particles[i].rect);
+		particles[i].hist = CaculateHist(particles[i].img);
 	}	
 }
 
 void PF::Updatepredict()
 {
-	predict[0] = (1 - BETA) * (predict[0] - pre_rect.x) + BETA * (rect_1.x - pre_rect.x);
-	predict[1] = (1 - BETA) * (predict[1] - pre_rect.y) + BETA * (rect_1.y - pre_rect.y);
+	predict[0] = (1 - BETA) * (predict[0]) + BETA * (rect_1.x - pre_rect.x);
+	predict[1] = (1 - BETA) * (predict[1]) + BETA * (rect_1.y - pre_rect.y);
 }
 
 void PF::Updateweight()
@@ -89,27 +139,20 @@ void PF::Updateweight()
 	float sum=0;
 	float max = 1e-10;
 	float min = FLT_MAX;
-	for (auto p : particles)
+	for (int i=0;i<particles.size();i++)
 	{
-		p.weight= exp(-100 * compareHist(ref_hist, p.hist, HISTCMP_BHATTACHARYYA));
-
-		if (p.weight > max)
-		{
-			max = p.weight;
-		}
-		if (p.weight < min)
-		{
-			min = p.weight;
-		}
+		particles[i].weight= exp(-100 * compareHist(ref_hist, particles[i].hist, HISTCMP_BHATTACHARYYA));
+		sum += particles[i].weight;
+		
 	}
-	
-	for (auto p : particles)
+	float sum1 = 0;
+	for (int i = 0; i < particles.size(); i++)
 	{
-		p.weight -= min;
-		p.weight /= (max - min)+1e-10;
+		particles[i].weight /= sum;
+		
 
-		sum += p.weight;
-		p.sum_weight = sum;
+		sum1 += particles[i].weight;
+		particles[i].sum_weight = sum1;
 	}
 
 }
@@ -122,7 +165,7 @@ void PF::UpdateHist()
 	{
 		for (int j = 0; j < 3; j++)
 		{
-			ref_hist.at<float>(j, i) = (1 - ALPHA) * ref_hist.at<float>(j, i) + ALPHA * histnow.at<float>(j, i);
+			ref_hist.at<float>(i, j) = (1 - ALPHA) * ref_hist.at<float>(i, j) + ALPHA * histnow.at<float>(i, j);
 		}
 	}
 }
@@ -130,7 +173,45 @@ void PF::UpdateHist()
 void PF::UpdateRect()
 {
 	vector<Particle> newparticles;
-	normal_distribution<float> rand_pnd(0, 1);
+	uniform_real_distribution<float> rand_pnd(0, 1);
+	float sum = 0;
+	for (int i = 0; i < N_PARTICLES; ++i)
+	{
+		float rnd = rand_pnd(rnd_e);
+		for (int i = 0; i < particles.size(); i++)
+		{
+			if(particles[i].sum_weight>=rnd)
+			{
+				newparticles.push_back(particles[i]);
+				break;
+			}
+		}
+
+		sum += newparticles[i].weight;
+
+	}
+	particles = newparticles;
+
+
+	float sumx=0;
+	float sumy=0;
+	float sumh=0;
+	float sumw=0;
+	for (int i = 0; i < particles.size(); i++)
+	{
+		
+		particles[i].weight /=sum;
+		sumx += particles[i].rect.x * particles[i].weight;
+		sumy += particles[i].rect.y * particles[i].weight;
+		sumh += particles[i].rect.height * particles[i].weight;
+		sumw += particles[i].rect.width * particles[i].weight;
+	}
+
+	rect_1.x = sumx;
+	rect_1.y = sumy;
+	rect_1.height = sumh;
+	rect_1.width = sumw;
+
 
 
 }
@@ -141,20 +222,20 @@ Mat PF::CaculateHist(Mat img)
 {
 	Mat kernal = CaculatKernal(img.rows, img.cols).clone();
 
-	Mat hist(3, NUMBINS, CV_32F);
+	Mat hist(NUMBINS, 3, CV_32F);
 	hist.setTo(1e-10);
 
-	for (int i = 0; i < src1_rect.rows; ++i)
+	for (int i = 0; i < img.rows; ++i)
 	{
-		for (int j = 0; j < src1_rect.cols; ++j)
+		for (int j = 0; j < img.cols; ++j)
 		{
-			int index1 = img.at<Vec3b>[0](i, j) / (COLORWITH / NUMBINS);
-			int index2 = img.at<Vec3b>[1](i, j) / (COLORWITH / NUMBINS);
-			int index3 = img.at<Vec3b>[2](i, j) / (COLORWITH / NUMBINS);
+			int index1 = img.at<Vec3b>(i, j)[0] / (COLORWITH / NUMBINS);
+			int index2 = img.at<Vec3b>(i, j)[1] / (COLORWITH / NUMBINS);
+			int index3 = img.at<Vec3b>(i, j)[2] / (COLORWITH / NUMBINS);
 			
-			hist.at<float>(0, index1) += kernal.at<float>(i, j);
-			hist.at<float>(1, index1) += kernal.at<float>(i, j);
-			hist.at<float>(2, index1) += kernal.at<float>(i, j);
+			hist.at<float>(index1, 0) += kernal.at<float>(i, j);
+			hist.at<float>(index2, 1) += kernal.at<float>(i, j);
+			hist.at<float>(index3, 2) += kernal.at<float>(i, j);
 		}
 	}
 

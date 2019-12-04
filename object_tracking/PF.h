@@ -9,11 +9,11 @@
 #define COLORWITH 256
 #define PI acos(-1)
 
-#define N_PARTICLES 100
-#define POS_VAR		20
-#define SCALE_VAR   30
+#define N_PARTICLES 300
+#define POS_VAR		15
+#define SCALE_VAR   0.1
 #define BETA		0.8
-#define ALPHA		0.8
+#define ALPHA		0.0
 
 using namespace cv;
 using namespace std;
