@@ -13,6 +13,7 @@
 #define POS_VAR		20
 #define SCALE_VAR   30
 #define BETA		0.8
+#define ALPHA		0.8
 
 using namespace cv;
 using namespace std;
@@ -52,6 +53,8 @@ public:
 	Mat src1_rect;
 	Mat src2_rect;
 
+	Mat ref_hist;
+
 	vector<Particle> particles;
 
 	default_random_engine rnd_e;
@@ -63,5 +66,11 @@ public:
 
 	void TraslateParticls();
 	void Updatepredict();
+	void Updateweight();
+	void UpdateHist();
+	void UpdateRect();
+
+	Mat CaculateHist(Mat img);
+	Mat CaculatKernal(int rows, int cols);
 };
 
